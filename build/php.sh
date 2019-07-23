@@ -2,18 +2,17 @@
 set -e
 
 # Version
-PHPREDIS_VERSION=4.2.0
-MEMCACHED_VERSION=3.1.3
+PHPREDIS_VERSION=5.0.0
 HIREDIS_VERSION=0.14.0
-SWOOLE_VERSION=4.2.13
-PHP_VERSION=7.1.26
+SWOOLE_VERSION=4.4.1
+PHP_VERSION=7.1.30
 RE2C_VERSION=1.1.1
-IGBINARY_VERSION=3.0.0
+IGBINARY_VERSION=3.0.1
 YAML_VERSION=2.0.4
-MONGODB_VERSION=1.5.3
-YAF_VERSION=3.0.7
-LIBMEMCACHED_VERSION=1.0.18
+MONGODB_VERSION=1.5.5
+YAF_VERSION=3.0.8
 IONOTIFY_VERSION=2.0.0
+EVENT_VERSION=2.5.3
 
 # -----------------------------------------------------------------------------
 # Install re2c for PHP
@@ -49,7 +48,6 @@ cd php-${PHP_VERSION}
        --enable-ftp \
        --enable-mbstring \
        --enable-mbregex \
-       --enable-fpm \
        --enable-bcmath \
        --enable-pcntl \
        --enable-soap \
@@ -101,38 +99,6 @@ make -j$(nproc)
 make install
 rm -rf /home/worker/src/igbinary-*
 echo "---------- Install PHP igbinary extension...done ---------- "
-
-# -----------------------------------------------------------------------------
-# Install libmemcached using by php-memcached
-# -----------------------------------------------------------------------------
-# use my own fixed version,see https://bugs.launchpad.net/libmemcached/+bug/1663985
-echo "---------- Install libmemcached... ---------- "
-cd /home/worker/src
-wget -q -O libmemcached-${LIBMEMCACHED_VERSION}.zip https://mrzfiles.oss-cn-shenzhen.aliyuncs.com/resource/libmemcached-${LIBMEMCACHED_VERSION}.zip
-unzip libmemcached-${LIBMEMCACHED_VERSION}.zip
-chmod +x -R libmemcached-${LIBMEMCACHED_VERSION}
-cd libmemcached-${LIBMEMCACHED_VERSION}
-./configure --prefix=/usr/local --with-memcached
-make -j$(nproc)
-make install
-rm -rf /home/worker/src/libmemcached*
-echo "---------- Install libmemcached...done ---------- "
-
-# -----------------------------------------------------------------------------
-# Install PHP memcached extensions
-# -----------------------------------------------------------------------------
-
-echo "---------- Install PHP memcached extension... ---------- "
-cd /home/worker/src
-wget -q -O memcached-${MEMCACHED_VERSION}.tgz https://mrzfiles.oss-cn-shenzhen.aliyuncs.com/resource/memcached-${MEMCACHED_VERSION}.tgz
-tar xzf memcached-${MEMCACHED_VERSION}.tgz
-cd memcached-${MEMCACHED_VERSION}
-/home/worker/php/bin/phpize
-./configure --enable-memcached --with-php-config=/home/worker/php/bin/php-config --with-libmemcached-dir=/usr/local/ --disable-memcached-sasl 1>/dev/null
-make -j$(nproc)
-make install
-rm -rf /home/worker/src/memcached-*
-echo "---------- Install PHP memcached extension...done ---------- "
 
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
@@ -232,6 +198,23 @@ rm -rf /home/worker/src/redis-*
 echo "---------- Install PHP redis extension...done. ---------- "
 
 # -----------------------------------------------------------------------------
+# Install PHP event extensions
+# -----------------------------------------------------------------------------
+
+echo "---------- Install PHP event extension... ---------- "
+cd /home/worker/src
+wget -q -O event-${EVENT_VERSION}.tgz https://mrzfiles.oss-cn-shenzhen.aliyuncs.com/resource/event-${EVENT_VERSION}.tgz
+tar zxf event-${EVENT_VERSION}.tgz
+cd event-${EVENT_VERSION}
+/home/worker/php/bin/phpize
+./configure --with-php-config=/home/worker/php/bin/php-config
+make clean
+make -j$(nproc)
+make install
+rm -rf /home/worker/src/event-*
+echo "---------- Install PHP event extension...done ---------- "
+
+# -----------------------------------------------------------------------------
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
@@ -252,7 +235,7 @@ ln -s /home/worker/php/bin/php /usr/local/bin/php
 
 echo "---------- Install Composer... ---------- "
 export COMPOSER_HOME=/home/worker/
-wget https://dl.laravel-china.org/composer.phar -O /usr/local/bin/composer
+wget https://getcomposer.org/download/1.8.6/composer.phar -O /usr/local/bin/composer
 chmod a+x /usr/local/bin/composer
-composer config -g repo.packagist composer https://packagist.laravel-china.org
+composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 echo "---------- Install Composer...done ---------- "
