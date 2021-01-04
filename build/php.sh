@@ -2,17 +2,17 @@
 set -e
 
 # Version
-PHPREDIS_VERSION=5.0.0
-HIREDIS_VERSION=0.14.0
-SWOOLE_VERSION=4.4.1
-PHP_VERSION=7.1.30
+PHPREDIS_VERSION=5.3.2
+HIREDIS_VERSION=1.0.0
+SWOOLE_VERSION=4.5.10
+PHP_VERSION=7.4.13
 RE2C_VERSION=1.1.1
-IGBINARY_VERSION=3.0.1
-YAML_VERSION=2.0.4
-MONGODB_VERSION=1.5.5
-YAF_VERSION=3.0.8
+IGBINARY_VERSION=3.2.1
+YAML_VERSION=2.2.1
+MONGODB_VERSION=1.9.0
+YAF_VERSION=3.2.5
 IONOTIFY_VERSION=2.0.0
-EVENT_VERSION=2.5.3
+EVENT_VERSION=2.5.7
 
 # -----------------------------------------------------------------------------
 # Install re2c for PHP
@@ -47,7 +47,7 @@ cd php-${PHP_VERSION}
        --enable-exif \
        --enable-ftp \
        --enable-mbstring \
-       --enable-mbregex \
+       --disable-mbregex \
        --enable-bcmath \
        --enable-pcntl \
        --enable-soap \
@@ -235,7 +235,7 @@ ln -s /home/worker/php/bin/php /usr/local/bin/php
 
 echo "---------- Install Composer... ---------- "
 export COMPOSER_HOME=/home/worker/
-wget https://getcomposer.org/download/1.8.6/composer.phar -O /usr/local/bin/composer
+wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer
 chmod a+x /usr/local/bin/composer
 composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 echo "---------- Install Composer...done ---------- "
